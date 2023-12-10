@@ -9,7 +9,7 @@ public class BingoServer {
             registry.bind("Bingo", stub);
             System.out.println("Serveur Bingo démarré.");
         } catch (Exception e) {
-            System.err.println("Erreur serveur: " + e.toString());
+            System.err.println("Erreur serveur: " + e);
             e.printStackTrace();
         }
     }

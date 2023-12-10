@@ -42,17 +42,35 @@ public class BingoGateway {
         }
 
         public void run() {
-            try (
+            try {
                     ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
                     ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
-            ) {
+
                 Registry registry = LocateRegistry.getRegistry("localhost",5002);
                 BingoInterface stub = (BingoInterface) registry.lookup("Bingo");
-
+                if(stub!=null) {
+                    System.out.println("STUB CREATED");
+                }
                 // Logique de communication avec le client et le serveur RMI ici...
                 while (!clientSocket.isClosed()) {
                     // Attendre et recevoir une requête du client
                     Object requestObject = input.readObject();
+                    // Check for shutdown signal
+                    if (requestObject instanceof String && requestObject.equals("shutdown")) {
+                        break; // Exit loop if shutdown signal received
+                    }
+                    if (requestObject instanceof String && requestObject.equals("bestscore")) {
+                        // récupération du score
+                        System.out.println("best score");
+                        int score= (int) input.readObject();
+                        System.out.println(score);
+                        //mettre a jour le meilleur score
+                        stub.mettreAJourMeilleurScore(score);
+                        int meilleur_score=stub.obtenirMeilleurScore();
+                        System.out.println("meilleur score = "+meilleur_score);
+                        output.writeObject(meilleur_score);
+                        output.flush();
+                    }
 
                     if (requestObject instanceof BingoRequest) {
                         BingoRequest request = (BingoRequest) requestObject;
@@ -66,7 +84,12 @@ public class BingoGateway {
                         BingoResponse response = new BingoResponse(resultat);
                         output.writeObject(response);
                         output.flush();
-                    }}
+
+                    }
+
+                }
+
+
 
 
             } catch (Exception e) {

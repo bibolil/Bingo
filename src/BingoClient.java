@@ -8,12 +8,12 @@ public class BingoClient {
     private static final int GATEWAY_PORT = 5001;
 
     public static void main(String[] args) {
-        try (
+        try {
                 Socket socket = new Socket(GATEWAY_HOST, GATEWAY_PORT);
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
                 Scanner scanner = new Scanner(System.in);
-        ) {
+
             int score = 0;
             int idJoueur = (int) (Math.random() * 1000); // ID unique pour chaque joueur
 
@@ -28,6 +28,7 @@ public class BingoClient {
 
                 // Recevoir la réponse de la Gateway
                 BingoResponse response = (BingoResponse) input.readObject();
+                System.out.println("gateway response :"+response.getResult());
                 if (response.getResult() == 1) {
                     System.out.println("Correct !");
                     score++;
@@ -37,8 +38,23 @@ public class BingoClient {
             }
 
             System.out.println("Votre score final est : " + score + "/10");
-            // Envoyer une requête pour obtenir le meilleur score
-            // ...
+
+            // recoit du meilleur score
+            output.writeObject("bestscore"); // Send shutdown signal
+            output.flush();
+            // Envoyer le score actuel pour obtenir le meilleur score
+            output.writeObject(score);
+            output.flush();
+            int meilleur_score = (int) input.readObject();
+            System.out.println("Meilleur Score est :" +meilleur_score+"/10");
+
+            // Envoyer un signal de déconnexion
+            output.writeObject("shutdown");
+            output.flush();
+            output.close();
+            input.close();
+            socket.close();
+
 
         } catch (Exception e) {
             System.err.println("Erreur client: " + e.toString());
