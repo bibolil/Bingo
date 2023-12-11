@@ -1,9 +1,9 @@
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 
 public interface BingoInterface extends Remote {
-    int jouer(int idJoueur, int numero) throws RemoteException;
-    int obtenirMeilleurScore() throws RemoteException;
-
-    public void mettreAJourMeilleurScore(int score) throws RemoteException;
+    int Play(int clientID, int guessedNumber) throws RemoteException;
+    int GetBestScore(int clientID) throws RemoteException;
+    List<Integer> GetClientHistory(int clientID) throws  RemoteException;
 }
