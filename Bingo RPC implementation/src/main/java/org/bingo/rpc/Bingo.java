@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Bingo implements BingoInterface{
-    private final ConcurrentHashMap<Integer, List<Game>> _clientGames;
+    private static final ConcurrentHashMap<Integer, List<Game>> _clientGames = new ConcurrentHashMap<>();;
 
     public Bingo() throws RemoteException {
         super();
-        this._clientGames = new ConcurrentHashMap<>();
     }
 
     public int Play(int clientID, int guessedNumber) throws XmlRpcException {
@@ -19,13 +18,11 @@ public class Bingo implements BingoInterface{
 
         List<Game> clientGames = _clientGames.get(clientID);
         synchronized (clientGames) {
-            if (clientGames.isEmpty()) {
-                System.out.println("first game for " + clientID);
+            if (clientGames.isEmpty())
                 clientGames.add(new Game());
-            }
+
             Game clientLastGame = clientGames.getLast();
             if (clientLastGame.isEnded()) {
-                System.out.println("new game for " + clientID);
                 clientLastGame = new Game();
                 clientGames.add(clientLastGame);
             }
@@ -50,7 +47,6 @@ public class Bingo implements BingoInterface{
         List<Integer> clientHistory = new ArrayList<>();
         if(!_clientGames.containsKey(clientID))
             return clientHistory;
-
         List<Game> clientGames = _clientGames.get(clientID);
         for (Game game : clientGames)
             clientHistory.add(game.GetGameScore());
