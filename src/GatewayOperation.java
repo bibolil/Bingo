@@ -1,5 +1,8 @@
 public enum GatewayOperation {
     Play,
     BestScore,
-    History;
+    History,
+
+    Quit
+
 }

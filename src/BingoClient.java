@@ -48,6 +48,11 @@ public class BingoClient {
             System.out.println("Game N°" + gameNumber + ": " + scores.get(gameNumber));
         System.out.println("############### End ###############");
     }
+    private static void Quit( ObjectOutputStream outputStream) throws Exception {
+        outputStream.writeObject(new BingoRequest(ClientID, GatewayOperation.Quit, -1));
+        outputStream.flush();
+
+    }
 
     private static int ShowMenu() {
         System.out.println();
@@ -57,13 +62,14 @@ public class BingoClient {
         System.out.println("1- Play Bingo");
         System.out.println("2- Show Best Score");
         System.out.println("3- Show History");
+        System.out.println("4- Quit");
         System.out.println("###############      ###############");
         System.out.println();
-        System.out.print("(?) Please select an option from 1 to 3: ");
+        System.out.print("(?) Please select an option from 1 to 4: ");
         Scanner scanner = new Scanner(System.in);
         int selectedOption = scanner.nextInt();
-        while(selectedOption < 1 || selectedOption > 3) {
-            System.out.println("[X] Please select a valid option from 1 to 3: ");
+        while(selectedOption < 1 || selectedOption > 4) {
+            System.out.println("[X] Please select a valid option from 1 to 4: ");
             selectedOption = scanner.nextInt();
         }
         return selectedOption;
@@ -78,13 +84,15 @@ public class BingoClient {
             System.out.println("############### Welcome to Bingo ###############");
             System.out.print("Please Entre the Client ID: ");
             ClientID = scanner.nextInt();
+            boolean playing= true;
             try {
-                while (true) {
+                while (playing) {
                     int option = ShowMenu();
                     switch (option) {
                         case 1: PlayBingo(inputStream, outputStream); break;
                         case 2: ShowBestScore(inputStream, outputStream); break;
-                        default: ShowHistory(inputStream, outputStream); break;
+                        case 3: ShowHistory(inputStream, outputStream); break;
+                        case 4: Quit(outputStream); playing=false; break;
                     }
                     System.out.println("############### End Of Operation ###############");
                 }
@@ -98,4 +106,6 @@ public class BingoClient {
             throw new RuntimeException(ex);
         }
     }
+
+
 }

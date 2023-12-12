@@ -19,23 +19,30 @@ public class ClientHandler implements Runnable {
             ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
             BingoRequest bingoRequest;
             while ((bingoRequest = (BingoRequest) input.readObject()) != null) {
-                System.out.println(bingoRequest);
-                switch (bingoRequest.GetOperationType()) {
-                    case GatewayOperation.Play:
-                        int score = stub.Play(bingoRequest.GetClientID(), bingoRequest.GetGuessedNumber());
-                        output.writeObject(score);
-                        output.flush();
-                        break;
-                    case GatewayOperation.BestScore:
-                        int bestScore = stub.GetBestScore(bingoRequest.GetClientID());
-                        output.writeObject(bestScore);
-                        output.flush();
-                        break;
-                    default:
-                        List<Integer> scoreHistory = stub.GetClientHistory(bingoRequest.GetClientID());
-                        output.writeObject(scoreHistory);
-                        output.flush();
+
+                if (bingoRequest.GetOperationType() == GatewayOperation.Quit) {
+                    break;
                 }
+                else {
+                    switch (bingoRequest.GetOperationType()) {
+                        case GatewayOperation.Play:
+                            int score = stub.Play(bingoRequest.GetClientID(), bingoRequest.GetGuessedNumber());
+                            output.writeObject(score);
+                            output.flush();
+                            break;
+                        case GatewayOperation.BestScore:
+                            int bestScore = stub.GetBestScore(bingoRequest.GetClientID());
+                            output.writeObject(bestScore);
+                            output.flush();
+                            break;
+                        case GatewayOperation.History:
+                            List<Integer> scoreHistory = stub.GetClientHistory(bingoRequest.GetClientID());
+                            output.writeObject(scoreHistory);
+                            output.flush();
+                            break;
+                    }
+                }
+
             }
 
             System.out.println("connection closed");
